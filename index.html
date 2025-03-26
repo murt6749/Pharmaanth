@@ -1,0 +1,1037 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Anthropology Quiz</title>
+  <style>
+    /* Basic reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    /* Top Navigation with Hamburger Menu */
+    .topnav {
+      background-color: #2c3e50;
+      padding: 10px 20px;
+      color: #ecf0f1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 3000;
+    }
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links .menu {
+      position: relative;
+      cursor: pointer;
+    }
+    .nav-links .menu > span {
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .nav-links .menu > span:hover {
+      background-color: #34495e;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: #ecf0f1;
+      min-width: 180px;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+      overflow: hidden;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #2c3e50;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    .dropdown a:hover {
+      background-color: #3498db;
+      color: white;
+    }
+    /* Show dropdown when menu is hovered */
+    .nav-links .menu:hover .dropdown {
+      display: block;
+    }
+    /* Hamburger Icon for Mobile */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: #ecf0f1;
+      transition: all 0.3s;
+    }
+    .hamburger.active div:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .hamburger.active div:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active div:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+    /* Mobile Menu (hidden by default) */
+    .mobile-menu {
+      display: none;
+      flex-direction: column;
+      background-color: #2c3e50;
+      position: absolute;
+      top: 50px;
+      left: 0;
+      width: 100%;
+      padding: 10px 0;
+      z-index: 2000;
+    }
+    .mobile-menu.show {
+      display: flex;
+    }
+    .mobile-menu .menu-item {
+      padding: 12px 20px;
+      color: #ecf0f1;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .mobile-menu .menu-item:hover {
+      background-color: #34495e;
+    }
+    .mobile-dropdown {
+      display: none;
+      background-color: #34495e;
+      padding-left: 20px;
+    }
+    .mobile-dropdown a {
+      display: block;
+      padding: 10px 20px;
+      color: #ecf0f1;
+      text-decoration: none;
+    }
+    .mobile-dropdown a:hover {
+      background-color: #3d566e;
+    }
+    .mobile-dropdown.show {
+      display: block;
+    }
+    /* Quiz Container */
+    .quiz-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 30px;
+      max-width: 800px;
+      width: 95%;
+      margin: 100px auto 40px;
+      display: none; /* Shown after user logs in */
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+      font-size: 28px;
+    }
+    .progress-bar {
+      height: 6px;
+      background-color: #e9ecef;
+      border-radius: 3px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+    .progress {
+      height: 100%;
+      background-color: #3498db;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .quiz-question {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .quiz-question:last-child {
+      border-bottom: none;
+    }
+    .question-text {
+      font-weight: 600;
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 15px;
+      border-radius: 8px;
+      background-color: #f8f9fa;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    .option:hover {
+      background-color: #e9ecef;
+    }
+    .option input {
+      margin-right: 12px;
+      margin-top: 3px;
+    }
+    .option-label {
+      flex-grow: 1;
+    }
+    .feedback {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+    .correct {
+      background-color: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+      display: block;
+    }
+    .incorrect {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+      display: block;
+    }
+    .explanation {
+      margin-top: 8px;
+      font-style: italic;
+      font-size: 13px;
+    }
+    /* Score Popup Modal */
+    .score-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .score-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .score-content h2 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    .score-emoji {
+      font-size: 50px;
+      margin: 15px 0;
+    }
+    .score-content button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .score-content button:hover {
+      background-color: #2980b9;
+    }
+    /* User Info Modal */
+    .user-modal {
+      display: flex;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .user-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .user-content h2 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+    .user-content p {
+      margin-bottom: 15px;
+      color: #555;
+    }
+    .user-content input, .user-content select {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .user-content button {
+      padding: 12px 25px;
+      border: none;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+    .user-content button:hover {
+      background-color: #34495e;
+    }
+    .error-message {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+    /* Loading Animation */
+    .loading-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      .hamburger {
+        display: flex;
+      }
+      .quiz-container {
+        margin: 80px auto;
+        padding: 20px;
+      }
+      .question-text {
+        font-size: 16px;
+      }
+    }
+  </style>
+  <!-- Firebase SDK using module syntax -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-analytics.js";
+    import { getFirestore, collection, addDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFgxSMtktsqJjcJOMnkTB8yZF6T492gpA",
+      authDomain: "fadis-youth.firebaseapp.com",
+      databaseURL: "https://fadis-youth-default-rtdb.firebaseio.com",
+      projectId: "fadis-youth",
+      storageBucket: "fadis-youth.firebasestorage.app",
+      messagingSenderId: "1067077305340",
+      appId: "1:1067077305340:web:3ca9c71202a8020c6ba879",
+      measurementId: "G-Z02SPW9ZKW"
+    };
+    
+    // Initialize Firebase and Firestore
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    window.db = getFirestore(app);
+    
+    // Sign in anonymously when page loads
+    signInAnonymously(auth)
+      .then(() => {
+        console.log("Anonymous authentication successful");
+      })
+      .catch((error) => {
+        console.error("Anonymous authentication error:", error);
+      });
+  </script>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <div class="topnav">
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="nav-links" id="nav-links">
+      <div class="menu">
+        <span>Summary</span>
+        <div class="dropdown">
+          <a href="summury3.html">Chapter 3</a>
+          <a href="summury4.html">Chapter 4</a>
+          <a href="summury5.html">Chapter 5</a>
+        </div>
+      </div>
+      <div class="menu">
+        <span>Quiz</span>
+        <div class="dropdown">
+          <a href="quiz3.html">Chapter 3</a>
+          <a href="quiz4.html">Chapter 4</a>
+          <a href="quiz5.html">Chapter 5</a>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="menu-item" id="mobile-summary">Summary ▾</div>
+      <div class="mobile-dropdown" id="mobile-summary-dropdown">
+        <a href="summury3.html">Chapter 3</a>
+        <a href="summury4.html">Chapter 4</a>
+        <a href="summury5.html">Chapter 5</a>
+      </div>
+      <div class="menu-item" id="mobile-quiz">Quiz ▾</div>
+      <div class="mobile-dropdown" id="mobile-quiz-dropdown">
+        <a href="quiz3.html">Chapter 3</a>
+        <a href="quiz4.html">Chapter 4</a>
+        <a href="quiz5.html">Chapter 5</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Animation -->
+  <div class="loading-container" id="loading-container">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- User Info Modal -->
+  <div class="user-modal" id="user-modal">
+    <div class="user-content">
+      <h2>Welcome to the Quiz</h2>
+      <p>Please enter your details to continue:</p>
+      <input type="text" id="userName" placeholder="Enter your full name" required />
+      <div id="name-error" class="error-message">Please enter your name</div>
+      
+      <select id="userDept" required>
+        <option value="">Select Department</option>
+        <option value="Pharmacy">Pharmacy</option>
+        <option value="Medicine">Medicine</option>
+        <option value="Public Health">Public Health</option>
+        <option value="Other">Other</option>
+      </select>
+      <div id="dept-error" class="error-message">Please select your department</div>
+      
+      <button onclick="submitUserInfo()">Start Quiz</button>
+    </div>
+  </div>
+
+  <!-- Quiz Container -->
+  <div class="quiz-container" id="quiz-container">
+    <h1>Anthropology Knowledge Check</h1>
+    <div class="progress-bar">
+      <div class="progress" id="quiz-progress"></div>
+    </div>
+    <div id="questions-container">
+      <!-- Questions will be dynamically injected here -->
+    </div>
+  </div>
+
+  <!-- Score Popup Modal -->
+  <div class="score-modal" id="score-modal">
+    <div class="score-content">
+      <h2 id="score-text">Your Score: </h2>
+      <div class="score-emoji" id="score-emoji"></div>
+      <button onclick="closeScoreModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Hamburger menu toggle for mobile
+    const hamburger = document.getElementById("hamburger");
+    const mobileMenu = document.getElementById("mobile-menu");
+    hamburger.addEventListener("click", () => {
+      hamburger.classList.toggle("active");
+      mobileMenu.classList.toggle("show");
+    });
+
+    // Mobile menu dropdown toggles
+    document.getElementById("mobile-summary").addEventListener("click", () => {
+      document.getElementById("mobile-summary-dropdown").classList.toggle("show");
+    });
+    document.getElementById("mobile-quiz").addEventListener("click", () => {
+      document.getElementById("mobile-quiz-dropdown").classList.toggle("show");
+    });
+
+    // Check if user is already registered
+    window.addEventListener('DOMContentLoaded', (event) => {
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        if (parsedData.department === "Pharmacy") {
+          document.getElementById("user-modal").style.display = "none";
+          document.getElementById("quiz-container").style.display = "block";
+        }
+      }
+    });
+
+    // Define our 20 questions with options, correct answer and explanations
+    const questions = [
+      {
+        question: "Which of the following best explains why human cultural diversity cannot be solely attributed to biological differences?",
+        options: {
+          a: "Cultural traits are encoded in human DNA",
+          b: "Culture is learned and transmitted independently of genetics",
+          c: "Environmental adaptations directly alter genetic structures",
+          d: "Genetic variation among human populations is too large to allow cultural differences"
+        },
+        correct: "b",
+        explanations: {
+          a: "This option wrongly implies that culture is innate.",
+          b: "Correct! Culture is acquired through learning, not genetics.",
+          c: "Environmental adaptations affect biology but do not directly encode culture.",
+          d: "While genetic variation exists, it does not determine cultural practices."
+        }
+      },
+      {
+        question: "What fundamental anthropological principle challenges the notion that certain cultures are inherently superior to others?",
+        options: {
+          a: "Ethnocentrism",
+          b: "Cultural relativism",
+          c: "Biological determinism",
+          d: "Social Darwinism"
+        },
+        correct: "b",
+        explanations: {
+          a: "Ethnocentrism is judging another culture by one's own standards.",
+          b: "Correct! Cultural relativism promotes understanding cultures on their own terms.",
+          c: "Biological determinism incorrectly attributes behavior solely to biology.",
+          d: "Social Darwinism applies natural selection to social policy, not cultural equality."
+        }
+      },
+      {
+        question: "How does biocultural evolution explain the increase in brain size among early human ancestors?",
+        options: {
+          a: "Genetic mutations alone led to the increase in brain size",
+          b: "Larger brains were a result of natural selection favoring taller individuals",
+          c: "Cultural developments, such as tool use and cooking, influenced brain expansion",
+          d: "The presence of linguistic diversity accelerated brain growth"
+        },
+        correct: "c",
+        explanations: {
+          a: "Genetic mutations are one factor but do not fully explain the change.",
+          b: "Height is not directly related to brain size in evolutionary terms.",
+          c: "Correct! Cultural practices like tool use and cooking likely contributed to brain expansion.",
+          d: "Linguistic diversity is a result of brain expansion, not the cause."
+        }
+      },
+      {
+        question: "Which of the following is NOT a key factor in human biological adaptation to different environments?",
+        options: {
+          a: "Bergmann's rule",
+          b: "Genetic drift",
+          c: "Cultural diffusion",
+          d: "Natural selection"
+        },
+        correct: "c",
+        explanations: {
+          a: "Bergmann's rule explains size differences related to climate.",
+          b: "Genetic drift can influence variation in small populations.",
+          c: "Correct! Cultural diffusion is a social process, not a biological adaptation.",
+          d: "Natural selection is a fundamental mechanism of adaptation."
+        }
+      },
+      {
+        question: "Why do populations in high-altitude regions tend to have larger lung capacities and higher hemoglobin levels?",
+        options: {
+          a: "Evolutionary adaptations to oxygen-deficient environments",
+          b: "Cultural practices that promote physical endurance",
+          c: "Historical isolation from lowland populations",
+          d: "Dietary differences compared to sea-level populations"
+        },
+        correct: "a",
+        explanations: {
+          a: "Correct! These are evolutionary adaptations to low oxygen levels.",
+          b: "While culture influences behavior, it does not change physiology directly.",
+          c: "Isolation can affect genetics but is not the primary reason here.",
+          d: "Diet plays a role, but the adaptations are mainly physiological."
+        }
+      },
+      {
+        question: "Which of the following disproves the validity of racial classifications in biology?",
+        options: {
+          a: "Humans share over 99% of their genetic material",
+          b: "Skin color is linked directly to intelligence levels",
+          c: "All human populations have identical physical adaptations",
+          d: "There are clear genetic boundaries between racial groups"
+        },
+        correct: "a",
+        explanations: {
+          a: "Correct! The high degree of shared genetic material undermines strict racial divisions.",
+          b: "This is a debunked stereotype.",
+          c: "Human populations have adaptations, but they are not identical.",
+          d: "Genetic boundaries are blurry, which invalidates strict racial classifications."
+        }
+      },
+      {
+        question: "The concept of 'race' as a biological classification fails due to which of the following reasons?",
+        options: {
+          a: "Human populations have always remained genetically isolated",
+          b: "There is greater genetic variation within so-called racial groups than between them",
+          c: "Race is purely determined by ancestry and genetic purity",
+          d: "Skin color and facial features are universal indicators of genetic ancestry"
+        },
+        correct: "b",
+        explanations: {
+          a: "Human populations have interbred extensively.",
+          b: "Correct! Intra-group variation is often greater than inter-group variation.",
+          c: "This option is based on an outdated notion of genetic purity.",
+          d: "Physical features are continuous traits, not discrete markers."
+        }
+      },
+      {
+        question: "Which principle suggests that shorter and stockier body types are better suited for colder climates?",
+        options: {
+          a: "Gloger's Rule",
+          b: "Allen's Rule",
+          c: "Bergmann's Rule",
+          d: "Dolichocephalic Index"
+        },
+        correct: "c",
+        explanations: {
+          a: "Gloger's Rule deals with coloration, not body shape.",
+          b: "Allen's Rule refers to limb proportions.",
+          c: "Correct! Bergmann's Rule states that larger, stockier bodies help retain heat in colder environments.",
+          d: "This is not a recognized rule for body size."
+        }
+      },
+      {
+        question: "How does the fossil record contribute to the understanding of human evolution?",
+        options: {
+          a: "It provides direct evidence of human ancestors and their adaptations",
+          b: "It suggests that human evolution stopped thousands of years ago",
+          c: "It proves that all human populations evolved independently",
+          d: "It confirms that early humans had the same cultural practices worldwide"
+        },
+        correct: "a",
+        explanations: {
+          a: "Correct! Fossils give us tangible evidence of evolutionary changes over time.",
+          b: "Human evolution is an ongoing process.",
+          c: "There is significant evidence of common ancestry among all populations.",
+          d: "Cultural practices are not preserved in the fossil record."
+        }
+      },
+      {
+        question: "What key distinction makes humans unique compared to other primates?",
+        options: {
+          a: "Exclusive reliance on instinct",
+          b: "Lack of biological adaptations",
+          c: "Dependence on culture for survival",
+          d: "Complete genetic uniformity"
+        },
+        correct: "c",
+        explanations: {
+          a: "Humans use both instinct and learned behaviors.",
+          b: "Humans have many biological adaptations.",
+          c: "Correct! Our ability to transmit culture is a defining feature.",
+          d: "Humans are genetically diverse."
+        }
+      },
+      {
+        question: "How does Allen's Rule explain limb proportions in different climates?",
+        options: {
+          a: "Populations in colder climates have longer limbs to conserve heat",
+          b: "Warmer climates favor populations with longer limbs for heat dissipation",
+          c: "Populations in colder climates have smaller body masses",
+          d: "Warmer climates favor stockier body builds to retain warmth"
+        },
+        correct: "b",
+        explanations: {
+          a: "Longer limbs would actually lead to more heat loss.",
+          b: "Correct! Longer limbs in warm climates help dissipate heat.",
+          c: "Body mass is more related to Bergmann's Rule.",
+          d: "Stockier builds are more common in cold climates."
+        }
+      },
+      {
+        question: "Which of the following best explains why human skin color varies across different geographical regions?",
+        options: {
+          a: "It is determined purely by ancestry with no environmental influences",
+          b: "UV radiation levels have shaped melanin production in human populations",
+          c: "Migration patterns have had no effect on skin pigmentation",
+          d: "The presence of certain foods in the diet alters skin color over generations"
+        },
+        correct: "b",
+        explanations: {
+          a: "Environmental factors play a critical role.",
+          b: "Correct! Variation in UV exposure has led to differences in melanin production.",
+          c: "Migration does affect genetic traits, but UV exposure is key.",
+          d: "Diet is not a primary factor in skin pigmentation."
+        }
+      },
+      {
+        question: "The term 'biocultural evolution' refers to which of the following phenomena?",
+        options: {
+          a: "The interaction between human genetics and cultural adaptations",
+          b: "The complete dominance of genetic factors over cultural ones",
+          c: "The idea that human culture is biologically inherited",
+          d: "The rapid loss of genetic diversity due to technological advancements"
+        },
+        correct: "a",
+        explanations: {
+          a: "Correct! It describes how biology and culture influence one another.",
+          b: "Both genetics and culture are important.",
+          c: "Culture is learned, not inherited biologically.",
+          d: "This option does not capture the biocultural concept."
+        }
+      },
+      {
+        question: "The earliest hominins likely developed bipedal locomotion as an adaptation to what kind of environment?",
+        options: {
+          a: "Dense forests with minimal sunlight",
+          b: "Open savannas requiring efficient movement",
+          c: "Ice-covered regions with low temperatures",
+          d: "Mountainous terrains favoring four-legged walking"
+        },
+        correct: "b",
+        explanations: {
+          a: "Forested environments favor different adaptations.",
+          b: "Correct! Open savannas required efficient bipedal movement.",
+          c: "Ice-covered regions came later in human evolution.",
+          d: "Bipedalism is not related to mountainous terrains."
+        }
+      },
+      {
+        question: "What role does cultural transmission play in human evolutionary success?",
+        options: {
+          a: "It ensures that only genetically superior traits are passed on",
+          b: "It allows humans to adapt faster than biological evolution alone",
+          c: "It restricts human populations to a fixed set of behaviors",
+          d: "It eliminates the need for genetic adaptation"
+        },
+        correct: "b",
+        explanations: {
+          a: "Cultural transmission is independent of genetics.",
+          b: "Correct! Culture allows rapid adaptation to changing environments.",
+          c: "Culture actually increases behavioral flexibility.",
+          d: "Both cultural and genetic adaptations are important."
+        }
+      },
+      {
+        question: "Which of the following is a primary argument against the concept of fixed racial categories?",
+        options: {
+          a: "Skin color is the most reliable indicator of genetic ancestry",
+          b: "Race is a stable biological feature that has existed for millennia",
+          c: "Human genetic variation exists along a continuum rather than in distinct groups",
+          d: "All racial groups have clearly defined, unique genetic codes"
+        },
+        correct: "c",
+        explanations: {
+          a: "Skin color is only one trait among many.",
+          b: "Race is not stable and clear-cut in biological terms.",
+          c: "Correct! Genetic variation is continuous rather than categorical.",
+          d: "Genetic codes overlap widely among human populations."
+        }
+      },
+      {
+        question: "What was one of the key flaws in early racial classification systems proposed by European scholars?",
+        options: {
+          a: "They ignored differences in skin pigmentation",
+          b: "They were based on social prejudices rather than scientific evidence",
+          c: "They focused too much on language differences",
+          d: "They successfully grouped humans into distinct genetic categories"
+        },
+        correct: "b",
+        explanations: {
+          a: "Skin pigmentation was a primary focus, not ignored.",
+          b: "Correct! Many early systems were influenced by social prejudices.",
+          c: "Language differences were not the main focus of these systems.",
+          d: "These systems failed to accurately reflect genetic diversity."
+        }
+      },
+      {
+        question: "What is the primary reason why human populations in high-latitude regions have lighter skin?",
+        options: {
+          a: "They have less exposure to UV radiation, reducing the need for melanin",
+          b: "They experience higher temperatures, leading to genetic adaptations",
+          c: "Their diet lacks the necessary nutrients to produce dark pigmentation",
+          d: "Genetic drift has completely eliminated dark skin in these regions"
+        },
+        correct: "a",
+        explanations: {
+          a: "Correct! Reduced UV exposure leads to lower melanin production.",
+          b: "Higher temperatures are not a factor in high-latitude regions.",
+          c: "Diet is not the primary determinant of skin color.",
+          d: "Genetic drift is not the main explanation here."
+        }
+      },
+      {
+        question: "Why is the use of racial categories in forensic anthropology controversial?",
+        options: {
+          a: "They provide clear evidence of behavioral differences between groups",
+          b: "They are purely based on social constructs rather than biological reality",
+          c: "They effectively separate populations into scientifically valid groups",
+          d: "They reinforce the idea that genetics determines intelligence"
+        },
+        correct: "b",
+        explanations: {
+          a: "Behavioral differences are not clearly delineated by race.",
+          b: "Correct! Racial categories are social constructs and lack strict biological boundaries.",
+          c: "Populations cannot be neatly separated based on race.",
+          d: "This option perpetuates a debunked myth."
+        }
+      },
+      {
+        question: "Which of the following best describes why modern anthropology rejects the concept of race as a biological reality?",
+        options: {
+          a: "All humans are genetically identical",
+          b: "Racial categories have no historical basis",
+          c: "Genetic variation within groups is greater than variation between groups",
+          d: "Race has no connection to physical appearance"
+        },
+        correct: "c",
+        explanations: {
+          a: "Humans share most genetic material, but there is variation.",
+          b: "Racial categories do have historical roots, but are outdated.",
+          c: "Correct! The majority of genetic variation exists within groups.",
+          d: "Physical appearance is only one factor and not determinative."
+        }
+      }
+    ];
+
+    let score = 0;
+    let answeredCount = 0;
+    const totalQuestions = questions.length;
+
+    // Dynamically render questions into the container
+    const questionsContainer = document.getElementById("questions-container");
+    questions.forEach((q, index) => {
+      const qNum = index + 1;
+      const questionDiv = document.createElement("div");
+      questionDiv.className = "quiz-question";
+      questionDiv.id = `question${qNum}`;
+      
+      // Create question text
+      const questionText = document.createElement("div");
+      questionText.className = "question-text";
+      questionText.textContent = `${qNum}. ${q.question}`;
+      questionDiv.appendChild(questionText);
+      
+      // Create options container
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "options-container";
+      for (const [key, optionText] of Object.entries(q.options)) {
+        const label = document.createElement("label");
+        label.className = "option";
+        label.innerHTML = `<input type="radio" name="q${qNum}" value="${key}" onchange="checkAnswer(${qNum}, '${key}')"> <span class="option-label">${optionText}</span>`;
+        optionsDiv.appendChild(label);
+      }
+      questionDiv.appendChild(optionsDiv);
+      
+      // Create feedback container
+      const feedbackDiv = document.createElement("div");
+      feedbackDiv.className = "feedback";
+      feedbackDiv.id = `feedback${qNum}`;
+      questionDiv.appendChild(feedbackDiv);
+      
+      questionsContainer.appendChild(questionDiv);
+    });
+
+    // Check answer function
+    function checkAnswer(questionNumber, selectedOption) {
+      const q = questions[questionNumber - 1];
+      const feedbackElement = document.getElementById(`feedback${questionNumber}`);
+      const isCorrect = selectedOption === q.correct;
+      
+      // Remove existing classes
+      feedbackElement.classList.remove("correct", "incorrect");
+      feedbackElement.classList.add(isCorrect ? "correct" : "incorrect");
+      
+      if (isCorrect) {
+        feedbackElement.innerHTML = `<strong>Correct!</strong> ${q.explanations[selectedOption]}`;
+        score++;
+      } else {
+        feedbackElement.innerHTML = `<strong>Incorrect.</strong> ${q.explanations[selectedOption]}<br>
+          <div class="explanation">The correct answer is: <strong>${q.options[q.correct]}</strong></div>`;
+      }
+      
+      // Ensure that each question is only answered once
+      if (!document.getElementById(`question${questionNumber}`).classList.contains("answered")) {
+        document.getElementById(`question${questionNumber}`).classList.add("answered");
+        answeredCount++;
+      }
+      
+      updateProgress();
+      if (answeredCount === totalQuestions) {
+        // Wait a moment then show score popup
+        setTimeout(showScorePopup, 500);
+      }
+    }
+
+    function updateProgress() {
+      const progressPercent = (answeredCount / totalQuestions) * 100;
+      document.getElementById("quiz-progress").style.width = progressPercent + "%";
+    }
+
+    // Show score popup modal with dynamic emoji
+    function showScorePopup() {
+      const percentage = Math.round((score / totalQuestions) * 100);
+      let emoji = "";
+      if (percentage === 100) {
+        emoji = "😃";
+      } else if (percentage >= 50) {
+        emoji = "😐";
+      } else {
+        emoji = "😢";
+      }
+      document.getElementById("score-text").textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
+      document.getElementById("score-emoji").textContent = emoji;
+      document.getElementById("score-modal").style.display = "flex";
+      
+      // Save attempt to Firebase
+      saveQuizAttempt(percentage);
+    }
+
+    function closeScoreModal() {
+      document.getElementById("score-modal").style.display = "none";
+    }
+
+    // Save quiz attempt to Firebase Firestore
+    async function saveQuizAttempt(scorePercentage) {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (userData) {
+        try {
+          // Create a document in quiztakers collection with user's UID as document ID
+          await setDoc(doc(window.db, "quiztakers", userData.uid), {
+            name: userData.name,
+            department: userData.department,
+            score: scorePercentage,
+            timestamp: new Date().toISOString(),
+            lastAttempt: new Date().toISOString()
+          }, { merge: true });
+          
+          console.log("Quiz attempt saved to quiztakers collection.");
+        } catch (error) {
+          console.error("Error saving quiz attempt:", error);
+        }
+      }
+    }
+
+    // User Info Submission and validation
+    async function submitUserInfo() {
+      const name = document.getElementById("userName").value.trim();
+      const dept = document.getElementById("userDept").value;
+      const nameError = document.getElementById("name-error");
+      const deptError = document.getElementById("dept-error");
+      
+      // Reset error messages
+      nameError.style.display = "none";
+      deptError.style.display = "none";
+      
+      // Validate inputs
+      let isValid = true;
+      if (name === "") {
+        nameError.style.display = "block";
+        isValid = false;
+      }
+      if (dept === "") {
+        deptError.style.display = "block";
+        isValid = false;
+      }
+      
+      if (!isValid) return;
+      
+      if (dept !== "Pharmacy") {
+        alert("Only users from the Pharmacy department can access this quiz.");
+        return;
+      }
+      
+      // Show loading animation
+      document.getElementById("loading-container").style.display = "flex";
+      
+      try {
+        // Get the current user's UID from Firebase Auth
+        const auth = getAuth();
+        const user = auth.currentUser;
+        
+        if (user) {
+          const userData = { 
+            name, 
+            department: dept,
+            uid: user.uid // Store the user's unique ID
+          };
+          
+          // Save user data to localStorage
+          localStorage.setItem("userData", JSON.stringify(userData));
+          
+          // Register user in Firebase
+          await setDoc(doc(window.db, "quiztakers", user.uid), {
+            name: name,
+            department: dept,
+            firstLogin: new Date().toISOString(),
+            lastLogin: new Date().toISOString()
+          }, { merge: true });
+          
+          // Hide loading and show quiz
+          document.getElementById("loading-container").style.display = "none";
+          document.getElementById("user-modal").style.display = "none";
+          document.getElementById("quiz-container").style.display = "block";
+        } else {
+          throw new Error("User not authenticated");
+        }
+      } catch (error) {
+        document.getElementById("loading-container").style.display = "none";
+        alert("Registration failed. Please refresh the page and try again.");
+        console.error("Registration error:", error);
+      }
+    }
+  </script>
+</body>
+</html>
