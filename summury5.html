@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethnicity & Multiculturalism in Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --pharma-blue: #005b96;
+            --pharma-teal: #00b4d8;
+            --pharma-white: #f8f9fa;
+            --pharma-gray: #6c757d;
+            --pharma-dark: #212529;
+            --alert-red: #d62839;
+            --alert-yellow: #f77f00;
+            --alert-green: #2a9d8f;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.7;
+            color: var(--pharma-dark);
+            background-color: var(--pharma-white);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .pharma-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .pharma-header {
+            background: linear-gradient(135deg, var(--pharma-blue), var(--pharma-teal));
+            color: white;
+            padding: 2.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 91, 150, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pharma-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+            opacity: 0.15;
+            z-index: 0;
+        }
+        
+        .pharma-header * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .pharma-subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .pill-badge {
+            display: inline-block;
+            background-color: var(--pharma-teal);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .pharma-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--pharma-blue);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .pharma-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 91, 150, 0.1);
+        }
+        
+        .pharma-card h2 {
+            color: var(--pharma-blue);
+            font-family: 'Playfair Display', serif;
+            margin-top: 0;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .pharma-card h3 {
+            color: var(--pharma-teal);
+            margin-top: 1.8rem;
+        }
+        
+        .theory-tabs {
+            margin: 2rem 0;
+        }
+        
+        .theory-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: -1px;
+        }
+        
+        .theory-btn {
+            padding: 0.7rem 1.2rem;
+            background: #e0f2fe;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--pharma-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .theory-btn.active {
+            background: white;
+            color: var(--pharma-blue);
+            border-bottom: 3px solid var(--pharma-blue);
+        }
+        
+        .theory-content {
+            display: none;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 6px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .theory-content.active {
+            display: block;
+        }
+        
+        .ethnic-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.2rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-top: 3px solid var(--pharma-teal);
+        }
+        
+        .feature-card h5 {
+            margin-top: 0;
+            color: var(--pharma-blue);
+            font-size: 1.1rem;
+        }
+        
+        .case-study {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-left: 4px solid var(--pharma-gray);
+        }
+        
+        .case-study h4 {
+            margin-top: 0;
+            color: var(--pharma-dark);
+        }
+        
+        .exam-alert {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        
+        .exam-alert h3 {
+            color: #856404;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .exam-alert h3 i {
+            margin-right: 10px;
+        }
+        
+        .pharma-quiz {
+            background: white;
+            border-radius: 8px;
+            padding: 1.8rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        
+        .quiz-question {
+            margin-bottom: 1.8rem;
+        }
+        
+        .quiz-question h4 {
+            color: var(--pharma-blue);
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-options {
+            margin-left: 1.2rem;
+        }
+        
+        .quiz-option {
+            margin-bottom: 0.8rem;
+            padding: 0.8rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .quiz-option:hover {
+            background: #e9ecef;
+        }
+        
+        .quiz-option input {
+            margin-right: 10px;
+        }
+        
+        .quiz-feedback {
+            display: none;
+            padding: 1rem;
+            margin-top: 0.8rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .pharma-footer {
+            text-align: center;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            color: var(--pharma-gray);
+            border-top: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .pharma-header {
+                padding: 1.8rem 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .pharma-subtitle {
+                font-size: 1rem;
+            }
+            
+            .pharma-card {
+                padding: 1.5rem;
+            }
+            
+            .ethnic-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pharma-container">
+        <header class="pharma-header">
+            <h1>Identity, Inter-Ethnic Relations, and Multiculturalism in Ethiopia</h1>
+            <p class="pharma-subtitle">Chapter 5 Summary - Understanding Diversity in Ethiopian Society</p>
+            <div>
+                <span class="pill-badge"><i class="fas fa-book-open"></i> Anthropology</span>
+                <span class="pill-badge"><i class="fas fa-users"></i> Ethnic Studies</span>
+                <span class="pill-badge"><i class="fas fa-graduation-cap"></i> Exam Prep</span>
+            </div>
+        </header>
+        
+        <div class="pharma-card">
+            <h2>5.1 Identity, Ethnicity, and Race</h2>
+            <p>All human societies recognize distinctions between "self" and "other." This section explores the concept of identity, focusing on individual and collective identities such as ethnic, racial, and national identity.</p>
+            
+            <h3>5.1.1 Ethnicity: Meaning and Origin</h3>
+            <p>The term "ethnicity" is derived from the Greek word ethnos, meaning a group of people bound by shared customs or cultural features. Originally, the term "tribe" was used for pre-modern societies, while "race" was applied to modern societies.</p>
+            
+            <div class="theory-tabs">
+                <div class="theory-buttons">
+                    <button class="theory-btn active" onclick="openTheoryTab(event, 'primordialism')">Primordialism</button>
+                    <button class="theory-btn" onclick="openTheoryTab(event, 'instrumentalism')">Instrumentalism</button>
+                    <button class="theory-btn" onclick="openTheoryTab(event, 'constructivism')">Constructivism</button>
+                </div>
+                
+                <div id="primordialism" class="theory-content active">
+                    <h5>Primordialist View</h5>
+                    <p>Views ethnicity as a fixed identity, determined by deep-rooted cultural and biological connections.</p>
+                </div>
+                
+                <div id="instrumentalism" class="theory-content">
+                    <h5>Instrumentalist View</h5>
+                    <p>Sees ethnicity as a flexible, strategic identity used for political and economic advantages.</p>
+                </div>
+                
+                <div id="constructivism" class="theory-content">
+                    <h5>Social Constructivism</h5>
+                    <p>Argues that ethnicity is fluid, changing over time based on social interactions and historical contexts.</p>
+                </div>
+            </div>
+            
+            <h3>5.1.3 Ethnic Identity and Social Categorization</h3>
+            <p>Ethnic identity has both external and internal aspects:</p>
+            <ul>
+                <li><strong>External aspects:</strong> Observable behaviors such as speaking a specific language, participating in ethnic institutions</li>
+                <li><strong>Internal aspects:</strong> Personal beliefs, attitudes, and emotions tied to ethnic belonging</li>
+            </ul>
+            
+            <div class="pharma-quiz">
+                <div class="quiz-question">
+                    <h4>Knowledge Check</h4>
+                    <p>Which theory of ethnicity views ethnic identity as primarily a tool for political mobilization?</p>
+                    
+                    <div class="quiz-options">
+                        <div class="quiz-option">
+                            <input type="radio" name="q1" id="q1a" onclick="checkQuizAnswer('q1', 'a')">
+                            <label for="q1a">Primordialism</label>
+                            <div id="q1a-feedback" class="quiz-feedback"></div>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" name="q1" id="q1b" onclick="checkQuizAnswer('q1', 'b')">
+                            <label for="q1b">Instrumentalism</label>
+                            <div id="q1b-feedback" class="quiz-feedback"></div>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" name="q1" id="q1c" onclick="checkQuizAnswer('q1', 'c')">
+                            <label for="q1c">Social Constructivism</label>
+                            <div id="q1c-feedback" class="quiz-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pharma-card">
+            <h2>5.2 Race - The Social Construction of Racial Identity</h2>
+            <p>Race is a complex and controversial concept. Historically, scientists classified humanity into distinct races based on physical features, but modern genetics shows that humans share over 99% of their DNA.</p>
+            
+            <h3>5.2.1 Historical Racial Classifications</h3>
+            <p>Linnaeus (1758): Divided humanity into Europeans (white), Americans (red), Asians (yellow), and Africans (black), assigning stereotypical traits to each group.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Modern Genetics</h4>
+                <p>Contemporary DNA research demonstrates that racial categories are not biologically fixed but are socially and historically constructed. Cultural behavior is not linked to racial traits; it is learned and influenced by environment and society.</p>
+            </div>
+        </div>
+        
+        <div class="pharma-card">
+            <h2>5.3 Ethnic Groups and Ethnic Identity</h2>
+            <p>An ethnic group is a social group sharing a common name, ancestry, history, language, and cultural traditions. The concept of ethnic identity varies based on personal and societal perception.</p>
+            
+            <h3>5.3.1 Six Main Features of Ethnic Groups (Hutchinson & Smith, 1996)</h3>
+            
+            <div class="ethnic-features">
+                <div class="feature-card">
+                    <h5>1. Common Name</h5>
+                    <p>A shared identifier that distinguishes the group from others.</p>
+                </div>
+                <div class="feature-card">
+                    <h5>2. Myth of Common Ancestry</h5>
+                    <p>A belief in shared origins, whether real or imagined.</p>
+                </div>
+                <div class="feature-card">
+                    <h5>3. Shared History</h5>
+                    <p>Collective memories of past events and heroes.</p>
+                </div>
+                <div class="feature-card">
+                    <h5>4. Cultural Elements</h5>
+                    <p>Distinctive language, religion, and customs.</p>
+                </div>
+                <div class="feature-card">
+                    <h5>5. Link to Homeland</h5>
+                    <p>A symbolic or physical connection to a territory.</p>
+                </div>
+                <div class="feature-card">
+                    <h5>6. Sense of Solidarity</h5>
+                    <p>Collective identity and unity among members.</p>
+                </div>
+            </div>
+            
+            <div class="pharma-quiz">
+                <div class="quiz-question">
+                    <h4>Application Question</h4>
+                    <p>Which feature of ethnic identity would best explain why diaspora communities maintain cultural traditions abroad?</p>
+                    
+                    <div class="quiz-options">
+                        <div class="quiz-option">
+                            <input type="radio" name="q2" id="q2a" onclick="checkQuizAnswer('q2', 'a')">
+                            <label for="q2a">Common Name</label>
+                            <div id="q2a-feedback" class="quiz-feedback"></div>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" name="q2" id="q2b" onclick="checkQuizAnswer('q2', 'b')">
+                            <label for="q2b">Link to Homeland</label>
+                            <div id="q2b-feedback" class="quiz-feedback"></div>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" name="q2" id="q2c" onclick="checkQuizAnswer('q2', 'c')">
+                            <label for="q2c">Myth of Common Ancestry</label>
+                            <div id="q2c-feedback" class="quiz-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pharma-card">
+            <h2>5.4 Inter-Ethnic Relations and Multiculturalism in Ethiopia</h2>
+            <p>Ethiopia is home to diverse ethnic groups, each with unique traditions and social structures. Inter-ethnic relations are shaped by historical interactions, state policies, and social dynamics.</p>
+            
+            <h3>5.4.2 Ethnic Federalism in Ethiopia</h3>
+            <p>Ethiopia adopted an ethnic federal system in 1995, allowing regions to govern themselves based on ethnic identity. This system has promoted self-rule but also led to ethnic tensions and conflicts.</p>
+            
+            <div class="case-study">
+                <h4>Case Study: Challenges of Ethnic Federalism</h4>
+                <p>The system has created both opportunities for cultural expression and challenges in balancing national unity with ethnic autonomy, sometimes leading to territorial disputes and political manipulation of ethnic identities.</p>
+            </div>
+        </div>
+        
+        <div class="pharma-card">
+            <h2>5.5 Theories of Multiculturalism</h2>
+            <p>Multiculturalism refers to policies and practices that promote cultural diversity within a society.</p>
+            
+            <div class="theory-tabs">
+                <div class="theory-buttons">
+                    <button class="theory-btn active" onclick="openTheoryTab(event, 'liberal')">Liberal</button>
+                    <button class="theory-btn" onclick="openTheoryTab(event, 'pluralist')">Pluralist</button>
+                    <button class="theory-btn" onclick="openTheoryTab(event, 'ethno')">Ethno-National</button>
+                </div>
+                
+                <div id="liberal" class="theory-content active">
+                    <h5>Liberal Multiculturalism</h5>
+                    <p>Supports cultural diversity while maintaining individual rights and national unity.</p>
+                </div>
+                
+                <div id="pluralist" class="theory-content">
+                    <h5>Pluralist Multiculturalism</h5>
+                    <p>Recognizes group rights and promotes coexistence of multiple cultures.</p>
+                </div>
+                
+                <div id="ethno" class="theory-content">
+                    <h5>Ethno-Nationalism</h5>
+                    <p>Prioritizes the interests of specific ethnic groups over national integration.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="exam-alert">
+            <h3><i class="fas fa-lightbulb"></i> Exam Focus: Key Topics</h3>
+            <ol>
+                <li>Definitions and differences between ethnicity, race, and identity</li>
+                <li>Primordialist, Instrumentalist, and Social Constructivist theories of ethnicity</li>
+                <li>Historical racial classifications and modern genetic understanding of race</li>
+                <li>Features of ethnic identity and social categorization</li>
+                <li>The impact of Ethiopia's ethnic federalism on inter-ethnic relations</li>
+                <li>Theories and models of multiculturalism and their relevance to Ethiopia</li>
+            </ol>
+            
+            <div class="pharma-quiz">
+                <div class="quiz-question">
+                    <h4>Critical Thinking Question</h4>
+                    <p>Which multicultural approach best describes Ethiopia's current system of ethnic federalism?</p>
+                    
+                    <div class="quiz-options">
+                        <div class="quiz-option">
+                            <input type="radio" name="q3" id="q3a" onclick="checkQuizAnswer('q3', 'a')">
+                            <label for="q3a">Liberal Multiculturalism</label>
+                            <div id="q3a-feedback" class="quiz-feedback"></div>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" name="q3" id="q3b" onclick="checkQuizAnswer('q3', 'b')">
+                            <label for="q3b">Pluralist Multiculturalism</label>
+                            <div id="q3b-feedback" class="quiz-feedback"></div>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" name="q3" id="q3c" onclick="checkQuizAnswer('q3', 'c')">
+                            <label for="q3c">Ethno-Nationalism</label>
+                            <div id="q3c-feedback" class="quiz-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="pharma-footer">
+            <p>Anthropology Study Resource | Chapter 5 Summary | © 2023</p>
+            <p>Understanding identity and multiculturalism in Ethiopian society</p>
+        </footer>
+    </div>
+
+    <script>
+        function openTheoryTab(evt, tabName) {
+            var i, tabcontent, tabbuttons;
+            
+            tabcontent = document.getElementsByClassName("theory-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            
+            tabbuttons = document.getElementsByClassName("theory-btn");
+            for (i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+        
+        function checkQuizAnswer(question, option) {
+            const correctAnswers = {
+                q1: 'b',
+                q2: 'b',
+                q3: 'b'
+            };
+            
+            const feedback = {
+                q1: {
+                    a: "Incorrect. Primordialism views ethnicity as fixed, not strategic.",
+                    b: "Correct! Instrumentalism sees ethnic identity as a tool for mobilization.",
+                    c: "Incorrect. Constructivism focuses on fluidity, not necessarily political use."
+                },
+                q2: {
+                    a: "Incorrect. While names are important, they don't explain cultural maintenance.",
+                    b: "Correct! Connection to homeland motivates cultural preservation abroad.",
+                    c: "Incorrect. Ancestry matters but doesn't directly explain cultural practice maintenance."
+                },
+                q3: {
+                    a: "Incorrect. Ethiopia's system emphasizes group rights more than liberal multiculturalism.",
+                    b: "Correct! The system recognizes ethnic group autonomy while maintaining national unity.",
+                    c: "Incorrect. While some elements exist, it's not purely ethno-nationalist."
+                }
+            };
+            
+            // Clear all feedback for this question first
+            const allFeedbacks = document.querySelectorAll(`[id^="${question}"] .quiz-feedback`);
+            allFeedbacks.forEach(fb => {
+                fb.style.display = 'none';
+                fb.classList.remove('correct', 'incorrect');
+            });
+            
+            // Show feedback for selected option
+            const selectedFeedback = document.getElementById(`${question}${option}-feedback`);
+            selectedFeedback.textContent = feedback[question][option];
+            selectedFeedback.style.display = 'block';
+            
+            if (option === correctAnswers[question]) {
+                selectedFeedback.classList.add('correct');
+            } else {
+                selectedFeedback.classList.add('incorrect');
+            }
+        }
+    </script>
+</body>
+</html>
