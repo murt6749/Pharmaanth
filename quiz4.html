@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Anthropology Quiz</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary);
+            color: var(--light);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary);
+        }
+
+        .question-card {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .active-question {
+            display: block;
+        }
+
+        .question-header {
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            background: var(--secondary);
+            transform: translateX(5px);
+            color: var(--dark);
+        }
+
+        .option.selected {
+            background: var(--secondary);
+            font-weight: bold;
+        }
+
+        .option.correct {
+            background: #27ae60;
+            border-color: #27ae60;
+        }
+
+        .option.incorrect {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .navigation {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--secondary);
+            transition: width 0.5s;
+        }
+
+        .question-counter {
+            text-align: right;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .results-container {
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 2.5em;
+            margin: 20px 0;
+            color: var(--secondary);
+        }
+
+        .answer-feedback {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .feedback-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .feedback-item.correct {
+            border-left-color: #27ae60;
+        }
+
+        .feedback-item.incorrect {
+            border-left-color: var(--accent);
+        }
+
+        .question-type-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: var(--secondary);
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 15px;
+            }
+            
+            button {
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1>Advanced Anthropology Quiz</h1>
+            <p>Test your understanding of marginalized communities with 19 challenging questions</p>
+            <div style="margin-top: 30px;">
+                <button onclick="startQuiz()">Begin Challenge</button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" style="display: none;">
+            <div class="progress-container">
+                <div class="question-counter">Question <span id="current-q">1</span> of 19</div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div id="questions-container"></div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" style="display: none;">
+            <div class="results-container">
+                <h2>Quiz Complete!</h2>
+                <div class="score-display">
+                    <span id="score">0</span>/19
+                </div>
+                <p id="score-message"></p>
+                
+                <div class="answer-feedback" id="answers-breakdown"></div>
+                
+                <div style="margin-top: 30px;">
+                    <button onclick="resetQuiz()">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Hypothesis Questions
+            {
+                type: 'hypothesis',
+                question: "A researcher argues that female genital cutting (FGC) persists in some Ethiopian communities because it reinforces patriarchal control over women's sexuality. Which finding would MOST STRONGLY disprove this hypothesis?",
+                options: [
+                    "FGC is practiced by women-led councils to mark girls' transition to adulthood",
+                    "Men exclusively decide whether FGC is performed, citing religious doctrine",
+                    "Uncut women face severe economic sanctions, like being barred from inheritance",
+                    "FGC is declining due to government bans but persists in rural areas"
+                ],
+                correct: 0,
+                explanation: "If women control the practice, it undermines the 'patriarchal control' hypothesis."
+            },
+            {
+                type: 'hypothesis',
+                question: "Anthropologists note that granting land titles to marginalized ironworkers fails to improve their social status. Which theory BEST explains this?",
+                options: [
+                    "Economic capital ≠ social capital – stigma persists despite ownership",
+                    "Legal pluralism failing – state laws override custom",
+                    "Trickle-down marginalization – elites monopolize new resources",
+                    "Cultural lag – attitudes change slower than laws"
+                ],
+                correct: 0,
+                explanation: "Material gains don't automatically erase cultural stigma, showing the limits of economic solutions to social marginalization."
+            },
+            
+            // Scenario Questions
+            {
+                type: 'scenario',
+                question: "In a study of Ethiopian potter communities, researchers find that while potters are stigmatized as 'impure,' their products are essential for rituals. This contradiction exemplifies:",
+                options: [
+                    "Cultural relativism – outsiders misunderstand the practice",
+                    "Structural functionalism – marginalization maintains social cohesion",
+                    "Cognitive dissonance – societies tolerate contradictions to preserve traditions",
+                    "Intersectionality – class and caste overlap in oppression"
+                ],
+                correct: 2,
+                explanation: "The coexistence of stigma and dependence illustrates how societies maintain contradictory beliefs to preserve functional systems."
+            },
+            {
+                type: 'scenario',
+                question: "Climate change displaces Afar pastoralists, worsening their marginalization. Which theory predicts this will lead to ethnic conflict?",
+                options: [
+                    "Cultural ecology – resource scarcity triggers competition",
+                    "Postmodernism – identities fragment, reducing solidarity",
+                    "Functionalism – new norms will adapt to stress",
+                    "Feminist theory – women bear the heaviest burdens"
+                ],
+                correct: 0,
+                explanation: "Cultural ecology predicts that environmental pressures exacerbate existing ethnic tensions over dwindling resources."
+            },
+            
+            // Conceptual Questions (15)
+            {
+                type: 'conceptual',
+                question: "Which anthropological perspective would argue that craft-worker marginalization (e.g., tanners) serves to maintain social hierarchies?",
+                options: [
+                    "Functionalism",
+                    "Conflict theory",
+                    "Cultural relativism",
+                    "Structuralism"
+                ],
+                correct: 1,
+                explanation: "Conflict theory views marginalization as a tool for maintaining power structures."
+            },
+            {
+                type: 'conceptual',
+                question: "The 'Sinqee' institution among Oromo women demonstrates that:",
+                options: [
+                    "Indigenous systems always exclude women",
+                    "Gender roles can be sources of power in traditional systems",
+                    "Modern law is superior to customary systems",
+                    "Women's rights require Western intervention"
+                ],
+                correct: 1,
+                explanation: "Sinqee shows how women leverage traditional gender roles for conflict resolution."
+            },
+            {
+                type: 'conceptual',
+                question: "What makes the persecution of Rohingyas in Myanmar but acceptance in some Ethiopian Muslim communities significant for understanding marginalization?",
+                options: [
+                    "Proves religion is the primary factor in discrimination",
+                    "Shows marginalization is absolute and universal",
+                    "Demonstrates context shapes vulnerability",
+                    "Indicates all Muslim groups face identical challenges"
+                ],
+                correct: 2,
+                explanation: "This contrast highlights how marginalization depends on specific socio-political contexts."
+            },
+            {
+                type: 'conceptual',
+                question: "Which concept explains why older adults may remain vulnerable even without ageism?",
+                options: [
+                    "Structural violence",
+                    "Cultural capital",
+                    "Habitus",
+                    "Intersectionality"
+                ],
+                correct: 0,
+                explanation: "Structural violence refers to systemic barriers (like lack of pensions) that disadvantage groups regardless of attitudes."
+            },
+            {
+                type: 'conceptual',
+                question: "An NGO's scholarship program for uncut girls is criticized as cultural imperialism because it:",
+                options: [
+                    "Uses economic incentives to change cultural practices",
+                    "Was designed without local consultation",
+                    "Focuses only on urban areas",
+                    "Doesn't address male circumcision"
+                ],
+                correct: 1,
+                explanation: "The core critique is imposing external values without community participation in design."
+            },
+            {
+                type: 'conceptual',
+                question: "The fading of Agnuak women's 'Don Kachel' peacemaking due to urbanization represents:",
+                options: [
+                    "Progress toward gender equality",
+                    "Epistemicide – erasure of indigenous knowledge",
+                    "Necessary modernization",
+                    "State empowerment of women"
+                ],
+                correct: 1,
+                explanation: "This illustrates how globalization can destroy valuable traditional systems."
+            },
+            {
+                type: 'conceptual',
+                question: "Which policy would anthropologists MOST critique for addressing craft-worker marginalization?",
+                options: [
+                    "Quotas in local government",
+                    "Vocational training programs",
+                    "Public shaming campaigns against 'impurity' beliefs",
+                    "Microfinance initiatives"
+                ],
+                correct: 2,
+                explanation: "Shaming violates cultural relativism and may reinforce stigma."
+            },
+            {
+                type: 'conceptual',
+                question: "The coexistence of state and customary courts in Ethiopia exemplifies:",
+                options: [
+                    "Legal pluralism",
+                    "Jurisdictional conflict",
+                    "Assimilation policy",
+                    "Neocolonialism"
+                ],
+                correct: 0,
+                explanation: "Legal pluralism recognizes multiple coexisting legal systems."
+            },
+            {
+                type: 'conceptual',
+                question: "Why might some Ethiopian women defend FGC despite health risks?",
+                options: [
+                    "Lack of education about consequences",
+                    "It confers adult status and marriageability",
+                    "Government subsidies for practitioners",
+                    "Alternative rites are unavailable"
+                ],
+                correct: 1,
+                explanation: "The social capital gained outweighs health concerns in their cultural context."
+            },
+            {
+                type: 'conceptual',
+                question: "Gedeo Baalle leaders resisting state court integration BEST illustrates:",
+                options: [
+                    "Primordial attachment to tradition",
+                    "Elites protecting political autonomy",
+                    "Modernization resistance",
+                    "Religious fundamentalism"
+                ],
+                correct: 1,
+                explanation: "Instrumentalist theory suggests leaders maintain systems that preserve their authority."
+            },
+            {
+                type: 'conceptual',
+                question: "What does the paradox of potters being both stigmatized and essential reveal about marginalization?",
+                options: [
+                    "Economic value overcomes social stigma",
+                    "Social hierarchies require functional roles for oppressed groups",
+                    "Cultural meanings are more powerful than material needs",
+                    "Globalization erodes traditional status systems"
+                ],
+                correct: 1,
+                explanation: "This shows how societies maintain stigmatized but functionally necessary roles."
+            },
+            {
+                type: 'conceptual',
+                question: "Which factor is LEAST relevant to the persistence of occupational marginalization?",
+                options: [
+                    "Ancient pollution taboos",
+                    "Colonial labor divisions",
+                    "Genetic differences between groups",
+                    "Economic competition"
+                ],
+                correct: 2,
+                explanation: "Biological differences have no bearing on socially constructed marginalization."
+            },
+            {
+                type: 'conceptual',
+                question: "The 'medicalization' of FGC (clinics performing safer cuts) represents:",
+                options: [
+                    "Cultural compromise",
+                    "Neoliberal co-optation",
+                    "Public health progress",
+                    "Gender equality"
+                ],
+                correct: 0,
+                explanation: "This shows how traditions adapt to modern systems while maintaining cultural significance."
+            },
+            {
+                type: 'conceptual',
+                question: "Which theory would predict that pastoralist land loss leads to cultural revitalization?",
+                options: [
+                    "Conflict theory",
+                    "Cultural ecology",
+                    "Resistance theory",
+                    "Modernization theory"
+                ],
+                correct: 2,
+                explanation: "Resistance theory suggests threats to identity can strengthen cultural practices."
+            },
+            {
+                type: 'conceptual',
+                question: "What makes the Raya-Azebo women's reconciliation institution unique?",
+                options: [
+                    "Use of supernatural sanctions",
+                    "Intervention in male violence cycles",
+                    "Government sponsorship",
+                    "Focus on property disputes"
+                ],
+                correct: 1,
+                explanation: "Their role in stopping blood feuds challenges typical gender roles in conflict resolution."
+            },
+            {
+                type: 'conceptual',
+                question: "The most anthropologically valid critique of 'racial' classifications is that they:",
+                options: [
+                    "Ignore genetic differences",
+                    "Are socially constructed and arbitrary",
+                    "Focus only on skin color",
+                    "Vary by religion"
+                ],
+                correct: 1,
+                explanation: "Modern anthropology rejects biological race, emphasizing social construction of categories."
+            }
+        ];
+
+        // Quiz State Variables
+        let currentQuestionIndex = 0;
+        let userAnswers = Array(questions.length).fill(null);
+        let score = 0;
+        let quizStarted = false;
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const questionsContainer = document.getElementById('questions-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentQElement = document.getElementById('current-q');
+
+        // Initialize Quiz
+        function startQuiz() {
+            startScreen.style.display = 'none';
+            quizScreen.style.display = 'block';
+            quizStarted = true;
+            loadQuestion(currentQuestionIndex);
+        }
+
+        // Load Question
+        function loadQuestion(index) {
+            currentQElement.textContent = index + 1;
+            progressBar.style.width = `${((index + 1) / questions.length) * 100}%`;
+            
+            const question = questions[index];
+            let optionsHTML = question.options.map((option, i) => `
+                <div class="option ${userAnswers[index] === i ? 'selected' : ''}" 
+                     onclick="selectOption(${index}, ${i})">
+                    ${option}
+                </div>
+            `).join('');
+            
+            questionsContainer.innerHTML = `
+                <div class="question-card active-question">
+                    <div class="question-header">
+                        <h3>${question.question}</h3>
+                        <span class="question-type-tag">${question.type.toUpperCase()}</span>
+                    </div>
+                    <div class="options-container">
+                        ${optionsHTML}
+                    </div>
+                    <div class="navigation">
+                        <button onclick="prevQuestion()" ${index === 0 ? 'disabled' : ''}>
+                            ← Previous
+                        </button>
+                        <button onclick="nextQuestion()" ${index === questions.length - 1 ? 'id="submit-btn"' : ''}>
+                            ${index === questions.length - 1 ? 'Submit Quiz' : 'Next →'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Select Answer
+        function selectOption(qIndex, optionIndex) {
+            userAnswers[qIndex] = optionIndex;
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === optionIndex) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        // Navigation
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+            }
+        }
+
+        // Show Results
+        function showResults() {
+            // Calculate score
+            score = userAnswers.reduce((total, answer, index) => {
+                return total + (answer === questions[index].correct ? 1 : 0);
+            }, 0);
+            
+            // Display score
+            document.getElementById('score').textContent = score;
+            
+            // Score message
+            const scoreMessage = document.getElementById('score-message');
+            if (score >= 17) {
+                scoreMessage.textContent = "Outstanding! You've mastered anthropological analysis.";
+            } else if (score >= 12) {
+                scoreMessage.textContent = "Strong performance! You understand key concepts well.";
+            } else if (score >= 8) {
+                scoreMessage.textContent = "Good effort! Review the explanations to deepen your understanding.";
+            } else {
+                scoreMessage.textContent = "Keep practicing! Anthropology requires nuanced thinking.";
+            }
+            
+            // Generate feedback
+            const feedbackContainer = document.getElementById('answers-breakdown');
+            feedbackContainer.innerHTML = questions.map((q, i) => {
+                const isCorrect = userAnswers[i] === q.correct;
+                const userAnswer = userAnswers[i] !== null ? q.options[userAnswers[i]] : "Not answered";
+                const correctAnswer = q.options[q.correct];
+                
+                return `
+                    <div class="feedback-item ${isCorrect ? 'correct' : 'incorrect'}">
+                        <strong>Q${i + 1}:</strong> ${q.question}<br>
+                        <strong>Your answer:</strong> ${userAnswer}<br>
+                        ${!isCorrect ? `<strong>Correct answer:</strong> ${correctAnswer}<br>` : ''}
+                        <strong>Explanation:</strong> ${q.explanation}
+                    </div>
+                `;
+            }).join('');
+            
+            // Show results screen
+            quizScreen.style.display = 'none';
+            resultsScreen.style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Reset Quiz
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = Array(questions.length).fill(null);
+            score = 0;
+            
+            resultsScreen.style.display = 'none';
+            startScreen.style.display = 'block';
+            
+            window.scrollTo(0, 0);
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', function(e) {
+            if (!quizStarted) return;
+            
+            if (e.key === 'ArrowRight') {
+                nextQuestion();
+            } else if (e.key === 'ArrowLeft') {
+                prevQuestion();
+            } else if (e.key >= 1 && e.key <= 4) {
+                const optionIndex = parseInt(e.key) - 1;
+                selectOption(currentQuestionIndex, optionIndex);
+            }
+        });
+    </script>
+</body>
+</html>
