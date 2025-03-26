@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 5 Advanced Identity Quiz</title>
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --secondary: #3498db;
+      --accent: #e74c3c;
+      --correct: #27ae60;
+      --light: #ecf0f1;
+      --dark: #1a252f;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--primary);
+      color: var(--light);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .quiz-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    h1, h2, h3 {
+      color: var(--secondary);
+    }
+    .question-card {
+      display: none;
+      animation: fadeIn 0.5s;
+      margin-bottom: 20px;
+    }
+    .active-question {
+      display: block;
+    }
+    .question-header {
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+    .options-container {
+      display: grid;
+      gap: 12px;
+    }
+    .option {
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .option:hover {
+      background: var(--secondary);
+      transform: translateX(5px);
+      color: var(--dark);
+    }
+    .option.selected.correct {
+      background: var(--correct);
+      border-color: var(--correct);
+      color: var(--dark);
+    }
+    .option.selected.incorrect {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--dark);
+    }
+    .feedback {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      display: none;
+    }
+    .feedback.correct {
+      border-left: 4px solid var(--correct);
+    }
+    .feedback.incorrect {
+      border-left: 4px solid var(--accent);
+    }
+    .question-type-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      background: var(--secondary);
+      border-radius: 4px;
+      font-size: 0.8em;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .navigation {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+    button {
+      padding: 12px 25px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    button:disabled {
+      background: #7f8c8d;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .progress-container {
+      margin-bottom: 30px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress {
+      height: 100%;
+      background: var(--secondary);
+      transition: width 0.5s;
+    }
+    .question-counter {
+      text-align: right;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+    .results-container {
+      text-align: center;
+    }
+    .score-display {
+      font-size: 2.5em;
+      margin: 20px 0;
+      color: var(--secondary);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 600px) {
+      .quiz-container {
+        padding: 15px;
+      }
+      button {
+        padding: 10px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <!-- Start Screen -->
+    <div id="start-screen">
+      <h1>Chapter 5: Identity & Ethnicity Quiz</h1>
+      <p>This advanced quiz on Chapter 5 covers identity, ethnicity, and inter‑ethnic relations in Ethiopia with 45 challenging questions.</p>
+      <div style="margin-top: 30px;">
+        <button onclick="startQuiz()">Begin Challenge</button>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" style="display: none;">
+      <div class="progress-container">
+        <div class="question-counter">Question <span id="current-q">1</span> of 45</div>
+        <div class="progress-bar">
+          <div class="progress" id="progress-bar"></div>
+        </div>
+      </div>
+      <div id="questions-container"></div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" style="display: none;">
+      <div class="results-container">
+        <h2>Quiz Complete!</h2>
+        <div class="score-display">
+          <span id="score">0</span>/45
+        </div>
+        <p id="score-message"></p>
+        <div style="margin-top: 30px;">
+          <button onclick="resetQuiz()">Try Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Array of 45 questions (all from Chapter 5)
+    const questions = [
+      // 28 Conceptual Questions
+      {
+        type: 'conceptual',
+        question: "Which of the following best defines 'ethnicity' as discussed in Chapter 5?",
+        options: [
+          "A biological categorization based on skin color",
+          "A group of people with shared customs, language, and history",
+          "A classification based solely on national boundaries",
+          "A political affiliation among diverse groups"
+        ],
+        correct: 1,
+        explanation: "Ethnicity refers to a group of people sharing common customs, language, and history—not merely biological traits."
+      },
+      {
+        type: 'conceptual',
+        question: "Max Weber's definition of an ethnic group includes which of the following elements?",
+        options: [
+          "Economic status and political power",
+          "Belief in common ancestry and shared customs",
+          "Only the language spoken by the group",
+          "Geographical location exclusively"
+        ],
+        correct: 1,
+        explanation: "Weber emphasized a subjective belief in common ancestry along with shared customs, language, and traditions."
+      },
+      {
+        type: 'conceptual',
+        question: "What is meant by 'ethnic identity'?",
+        options: [
+          "An individual's physical appearance",
+          "The process by which individuals categorize themselves as part of a particular ethnic group",
+          "The legal classification by the state",
+          "A measure of economic status"
+        ],
+        correct: 1,
+        explanation: "Ethnic identity is about how individuals see themselves as members of a particular ethnic group."
+      },
+      {
+        type: 'conceptual',
+        question: "Which factor does NOT primarily contribute to the formation of ethnic identity?",
+        options: [
+          "Shared language",
+          "Cultural traditions",
+          "Economic status",
+          "Historical memories"
+        ],
+        correct: 2,
+        explanation: "Economic status is not a primary element in forming ethnic identity, which is built on culture and history."
+      },
+      {
+        type: 'conceptual',
+        question: "In Chapter 5, how is 'race' primarily characterized by anthropologists?",
+        options: [
+          "A fixed biological reality",
+          "A socially constructed and arbitrary classification",
+          "An indicator of moral values",
+          "A determinant of intelligence"
+        ],
+        correct: 1,
+        explanation: "Modern anthropologists view race as a social construct rather than a fixed biological category."
+      },
+      {
+        type: 'conceptual',
+        question: "What distinguishes ethnicity from race according to Chapter 5?",
+        options: [
+          "Ethnicity is based on language and culture, while race is based on physical traits",
+          "Race is mutable, while ethnicity is fixed",
+          "Ethnicity is determined by legal documents",
+          "Race defines economic status"
+        ],
+        correct: 0,
+        explanation: "Ethnicity relates to shared culture and language; race has historically been based on physical features."
+      },
+      {
+        type: 'conceptual',
+        question: "Which term refers to the shared sense of belonging and collective memory among members of an ethnic group?",
+        options: [
+          "Nationalism",
+          "Ethnic identity",
+          "Cultural assimilation",
+          "Social stratification"
+        ],
+        correct: 1,
+        explanation: "Ethnic identity involves the shared sense of belonging and collective memory within a group."
+      },
+      {
+        type: 'conceptual',
+        question: "What role does language play in ethnic identity?",
+        options: [
+          "It is the sole determinant of ethnicity",
+          "It serves as one of the primary markers of ethnic identity",
+          "It has no significance in ethnic categorization",
+          "It is only important for official state classification"
+        ],
+        correct: 1,
+        explanation: "Language is a key marker that reinforces group identity by facilitating shared communication."
+      },
+      {
+        type: 'conceptual',
+        question: "How is the concept of 'imagined community' relevant to ethnic groups?",
+        options: [
+          "It suggests that ethnic groups are fictitious",
+          "It implies that shared beliefs and symbols construct group identity",
+          "It indicates that ethnic groups are based solely on genetic ties",
+          "It rejects the idea of national identity"
+        ],
+        correct: 1,
+        explanation: "The concept of 'imagined community' shows how shared narratives and symbols create a sense of belonging."
+      },
+      {
+        type: 'conceptual',
+        question: "According to Chapter 5, what is a key difference between ethnic identity and national identity?",
+        options: [
+          "National identity is based on economic factors, while ethnic identity is cultural",
+          "Ethnic identity is rooted in historical traditions, whereas national identity is defined by political boundaries",
+          "National identity always overrides ethnic identity",
+          "There is no difference between them"
+        ],
+        correct: 1,
+        explanation: "Ethnic identity is based on culture and history; national identity is more about political and territorial affiliation."
+      },
+      {
+        type: 'conceptual',
+        question: "Which of the following best describes the process of social categorization in the context of ethnicity?",
+        options: [
+          "Individuals are assigned to groups solely on appearance",
+          "Individuals classify themselves and others based on perceived cultural similarities",
+          "Social categorization is determined by the government",
+          "It is a random assignment process"
+        ],
+        correct: 1,
+        explanation: "Social categorization involves perceiving and classifying individuals based on cultural and historical commonalities."
+      },
+      {
+        type: 'conceptual',
+        question: "What is meant by 'cultural relativism' in relation to ethnic identity?",
+        options: [
+          "Judging cultures based on one's own standards",
+          "Understanding a culture on its own terms without bias",
+          "Assuming all cultures are identical",
+          "Promoting one culture over others"
+        ],
+        correct: 1,
+        explanation: "Cultural relativism means evaluating a culture within its own context and values."
+      },
+      {
+        type: 'conceptual',
+        question: "Which element is NOT typically a component of ethnic identity?",
+        options: [
+          "A myth of common ancestry",
+          "Shared cultural practices",
+          "Economic performance",
+          "Historical memories"
+        ],
+        correct: 2,
+        explanation: "Economic performance is not central to ethnic identity; shared ancestry, practices, and memories are."
+      },
+      {
+        type: 'conceptual',
+        question: "In discussions of multiculturalism in Ethiopia, which factor is central to inter-ethnic relations?",
+        options: [
+          "Economic disparity",
+          "Cultural hybridity",
+          "Political alliances",
+          "Religious conversion"
+        ],
+        correct: 1,
+        explanation: "Cultural hybridity plays a key role in shaping inter-ethnic relations in a multicultural context."
+      },
+      {
+        type: 'conceptual',
+        question: "How do historical narratives contribute to ethnic identity?",
+        options: [
+          "They are irrelevant in modern times",
+          "They serve as unifying forces that reinforce group cohesion",
+          "They are used solely for political manipulation",
+          "They always lead to conflict"
+        ],
+        correct: 1,
+        explanation: "Historical narratives help unite members of an ethnic group by reinforcing shared experiences."
+      },
+      {
+        type: 'conceptual',
+        question: "Which statement aligns with the view that ethnic identities are fluid?",
+        options: [
+          "Ethnic identities are fixed at birth",
+          "Individuals can modify their ethnic identity over time",
+          "Ethnic identity is determined solely by genetics",
+          "Once assigned, ethnic identity remains unchanged"
+        ],
+        correct: 1,
+        explanation: "Ethnic identities are dynamic and may evolve as individuals interact with diverse cultural influences."
+      },
+      {
+        type: 'conceptual',
+        question: "What does the term 'diaspora' refer to in the context of ethnic identity?",
+        options: [
+          "Forced migration of a group",
+          "Dispersion from an original homeland while maintaining cultural ties",
+          "A type of government policy",
+          "The assimilation of ethnic groups"
+        ],
+        correct: 1,
+        explanation: "Diaspora describes a group dispersed from its homeland yet retaining a common identity."
+      },
+      {
+        type: 'conceptual',
+        question: "Which aspect of ethnic identity is most internal in nature?",
+        options: [
+          "Participation in festivals",
+          "Self-identification and sense of belonging",
+          "Language usage in public",
+          "Traditional dress"
+        ],
+        correct: 1,
+        explanation: "Self-identification and internal feelings of belonging are key internal aspects of ethnic identity."
+      },
+      {
+        type: 'conceptual',
+        question: "What is the significance of symbols and rituals in maintaining ethnic identity?",
+        options: [
+          "They are outdated practices",
+          "They reinforce continuity and group cohesion",
+          "They serve only an aesthetic purpose",
+          "They are imposed by external authorities"
+        ],
+        correct: 1,
+        explanation: "Symbols and rituals help reinforce shared values and sustain ethnic identity over time."
+      },
+      {
+        type: 'conceptual',
+        question: "Which factor is most likely to cause tension between ethnic groups in a multicultural society?",
+        options: [
+          "Differences in traditional customs and narratives",
+          "Uniformity in language",
+          "Shared economic prosperity",
+          "Complete cultural assimilation"
+        ],
+        correct: 0,
+        explanation: "Differences in customs and histories often lead to tension between ethnic groups."
+      },
+      {
+        type: 'conceptual',
+        question: "What does the term 'othering' refer to in ethnic relations?",
+        options: [
+          "Including everyone in a group",
+          "Portraying a group as fundamentally different and inferior",
+          "Blending multiple identities",
+          "Celebrating cultural diversity"
+        ],
+        correct: 1,
+        explanation: "'Othering' describes the process of portraying a group as alien or inferior."
+      },
+      {
+        type: 'conceptual',
+        question: "Which approach is suggested for overcoming inter-ethnic conflict?",
+        options: [
+          "Promoting monocultural policies",
+          "Encouraging cultural pluralism and dialogue",
+          "Strict legal measures",
+          "Focusing solely on economic integration"
+        ],
+        correct: 1,
+        explanation: "Encouraging dialogue and pluralism is seen as a key way to reduce inter-ethnic conflict."
+      },
+      {
+        type: 'conceptual',
+        question: "How do ethnographic methods enhance our understanding of ethnic identity?",
+        options: [
+          "They provide only quantitative data",
+          "They offer deep contextual insights into cultural practices",
+          "They focus solely on genetic markers",
+          "They ignore historical context"
+        ],
+        correct: 1,
+        explanation: "Ethnography gives detailed, qualitative insights that reveal the nuances of ethnic identity."
+      },
+      {
+        type: 'conceptual',
+        question: "What is a common critique of fixed racial categories?",
+        options: [
+          "They are too flexible",
+          "They overlook the social construction of identity",
+          "They accurately reflect biology",
+          "They emphasize economic factors"
+        ],
+        correct: 1,
+        explanation: "Fixed racial categories are criticized for ignoring the fluid, socially constructed nature of identity."
+      },
+      {
+        type: 'conceptual',
+        question: "Which factor is crucial in establishing ethnic boundaries?",
+        options: [
+          "Physical appearance alone",
+          "Shared cultural symbols and rituals",
+          "Government policies",
+          "Economic status"
+        ],
+        correct: 1,
+        explanation: "Shared symbols and rituals are essential in drawing and maintaining ethnic boundaries."
+      },
+      {
+        type: 'conceptual',
+        question: "How do 'in-group' versus 'out-group' dynamics relate to ethnic identity?",
+        options: [
+          "They have no relation",
+          "They describe the tendency to favor one's own group over others",
+          "They are determined solely by genetics",
+          "They are only political constructs"
+        ],
+        correct: 1,
+        explanation: "The in-group/out-group dynamic is a central concept in understanding bias and favoritism in ethnic identity."
+      },
+      {
+        type: 'conceptual',
+        question: "What role do collective memories play in maintaining ethnic identity?",
+        options: [
+          "They are insignificant",
+          "They provide a shared narrative that unites group members",
+          "They serve merely as entertainment",
+          "They only influence economic behavior"
+        ],
+        correct: 1,
+        explanation: "Collective memories offer a shared narrative that is vital for group cohesion and identity."
+      },
+      {
+        type: 'conceptual',
+        question: "Which statement best summarizes the fluidity of ethnic identity in Chapter 5?",
+        options: [
+          "Ethnic identity is fixed at birth",
+          "It can evolve as individuals interact with multiple cultural influences",
+          "It is irrelevant in modern society",
+          "It is solely determined by state policies"
+        ],
+        correct: 1,
+        explanation: "Chapter 5 stresses that ethnic identity is dynamic and changes with evolving cultural influences."
+      },
+      // End of 28 conceptual questions
+
+      // 5 Scenario Questions
+      {
+        type: 'scenario',
+        question: "A new minority group settles in an urban Ethiopian area, leading to tensions over cultural festivals. Which scenario best illustrates the concept of 'othering' as discussed in Chapter 5?",
+        options: [
+          "The new group is quickly integrated without conflict",
+          "Local residents stereotype and isolate the newcomers, labeling their traditions as inferior",
+          "The government organizes joint cultural events to celebrate diversity",
+          "Both groups merge traditions to form a new festival"
+        ],
+        correct: 1,
+        explanation: "Stereotyping and isolating the newcomers is a classic example of 'othering.'"
+      },
+      {
+        type: 'scenario',
+        question: "During a community meeting, members debate whether to preserve traditional rituals or adopt modern practices. This scenario best demonstrates:",
+        options: [
+          "The irrelevance of history in ethnic identity",
+          "The tension between tradition and modernity in maintaining identity",
+          "A purely economic dispute",
+          "The failure of cultural pluralism"
+        ],
+        correct: 1,
+        explanation: "This debate reflects the tension between preserving tradition and embracing modernity."
+      },
+      {
+        type: 'scenario',
+        question: "A rural community experiences a revival of traditional ethnic symbols after decades of assimilation policies. This scenario is an example of:",
+        options: [
+          "Cultural assimilation",
+          "Ethnic erosion",
+          "Cultural revitalization",
+          "Political reclassification"
+        ],
+        correct: 2,
+        explanation: "The revival of traditional symbols indicates cultural revitalization."
+      },
+      {
+        type: 'scenario',
+        question: "Urban youth adopt traditional dress and language as a protest against globalization. This scenario demonstrates:",
+        options: [
+          "A complete rejection of modernity",
+          "The creation of a new ethnic group",
+          "The reassertion of ethnic identity in response to homogenization",
+          "An isolated trend with no significance"
+        ],
+        correct: 2,
+        explanation: "Reasserting traditional identity amid globalization reflects a response to cultural homogenization."
+      },
+      {
+        type: 'scenario',
+        question: "During an inter-ethnic dialogue, a leader emphasizes shared historical memories to bridge cultural divides. This scenario best illustrates:",
+        options: [
+          "The irrelevance of collective memory",
+          "Using historical narratives to foster unity",
+          "The imposition of a dominant culture",
+          "The dismissal of cultural differences"
+        ],
+        correct: 1,
+        explanation: "Emphasizing shared history helps bridge divides and foster unity."
+      },
+      
+      // 5 Hypothesis Questions
+      {
+        type: 'hypothesis',
+        question: "If increased urban migration leads to greater inter-ethnic contact, then ethnic boundaries should blur. Which finding would most strongly challenge this hypothesis?",
+        options: [
+          "Urban areas show higher rates of bilingualism",
+          "Inter-ethnic marriages remain low despite migration",
+          "Cultural festivals become more diverse",
+          "Economic opportunities rise for all groups"
+        ],
+        correct: 1,
+        explanation: "Low inter-ethnic marriage rates indicate boundaries remain rigid, challenging the hypothesis."
+      },
+      {
+        type: 'hypothesis',
+        question: "If state policies promote cultural pluralism, then ethnic conflict should decrease. Which observation would most strongly contradict this hypothesis?",
+        options: [
+          "Increased participation in inter-ethnic events",
+          "Rising incidents of ethnic violence despite new policies",
+          "Improved economic outcomes for minorities",
+          "Greater media representation of diverse cultures"
+        ],
+        correct: 1,
+        explanation: "An increase in ethnic violence contradicts the expectation that pluralism reduces conflict."
+      },
+      {
+        type: 'hypothesis',
+        question: "If ethnic identity is primarily shaped by collective memory, then communities with disrupted historical narratives should show weaker cohesion. Which evidence would refute this hypothesis?",
+        options: [
+          "Communities with fragmented histories still celebrate strong cultural rituals",
+          "Historical narratives are absent in some groups",
+          "Modern media replaces traditional narratives",
+          "Government records accurately document lost histories"
+        ],
+        correct: 0,
+        explanation: "Strong cultural rituals in communities with fragmented histories would refute the hypothesis."
+      },
+      {
+        type: 'hypothesis',
+        question: "If ethnic identity is flexible, then exposure to multiple cultures should lead to hybrid identities. Which observation would most strongly refute this hypothesis?",
+        options: [
+          "Individuals in multicultural cities maintain a strong singular ethnic identity",
+          "Inter-ethnic collaborations become more common",
+          "Hybrid cultural forms emerge in artistic expressions",
+          "Language blending becomes prevalent"
+        ],
+        correct: 0,
+        explanation: "If individuals retain a singular identity despite cultural diversity, it refutes the flexibility hypothesis."
+      },
+      {
+        type: 'hypothesis',
+        question: "If shared cultural symbols are critical to ethnic identity, then eliminating traditional symbols should weaken group identity. Which scenario would most contradict this?",
+        options: [
+          "Communities invent new symbols when old ones disappear",
+          "Loss of symbols leads to a total breakdown of identity",
+          "Government bans traditional symbols",
+          "Younger generations ignore traditional symbols"
+        ],
+        correct: 0,
+        explanation: "Reinventing symbols when old ones vanish contradicts the idea that only traditional symbols matter."
+      },
+      
+      // 7 Critical Thinking Questions
+      {
+        type: 'critical',
+        question: "Critically assess how the concept of 'imagined communities' impacts our understanding of ethnic identity. Which statement best reflects this analysis?",
+        options: [
+          "It reduces ethnic identity to mere fantasy",
+          "It highlights the power of shared narratives in uniting people",
+          "It ignores economic factors",
+          "It oversimplifies historical realities"
+        ],
+        correct: 1,
+        explanation: "Imagined communities underscore the role of shared narratives in constructing cohesive ethnic identities."
+      },
+      {
+        type: 'critical',
+        question: "Critically evaluate the limitations of using language as the sole marker for ethnic identity. Which viewpoint best captures these limitations?",
+        options: [
+          "Language is unreliable because it can be adopted or changed",
+          "Language is the most stable aspect of identity",
+          "Language always reflects deep cultural values",
+          "Language differences are more important than other elements"
+        ],
+        correct: 0,
+        explanation: "Language is fluid and can be adopted, so it alone is insufficient to define ethnic identity."
+      },
+      {
+        type: 'critical',
+        question: "Critically examine the role of government policies in shaping ethnic identities. Which statement best represents a nuanced understanding?",
+        options: [
+          "Policies are the only factor determining ethnic identity",
+          "While policies influence identity, grassroots practices often play a decisive role",
+          "Ethnic identity is entirely independent of state intervention",
+          "State policies always homogenize ethnic differences"
+        ],
+        correct: 1,
+        explanation: "Grassroots cultural practices often exert a stronger influence than government policies alone."
+      },
+      {
+        type: 'critical',
+        question: "Critically analyze how 'othering' contributes to inter-ethnic conflict. Which option best reflects this analysis?",
+        options: [
+          "Othering is minor compared to economic issues",
+          "It creates in-group/out-group divisions that exacerbate conflict",
+          "It is solely driven by media",
+          "It always results in positive cultural exchange"
+        ],
+        correct: 1,
+        explanation: "Othering reinforces divisions between groups, which is a key factor in inter-ethnic conflict."
+      },
+      {
+        type: 'critical',
+        question: "Critically discuss the impact of globalization on ethnic identity in Ethiopia. Which perspective best encapsulates the complex relationship?",
+        options: [
+          "Globalization uniformly erodes ethnic identity",
+          "Globalization has no impact on identity",
+          "Globalization both challenges and revitalizes ethnic identities",
+          "It only affects economic conditions, not cultural identities"
+        ],
+        correct: 2,
+        explanation: "Globalization can dilute traditional identity while also fostering new forms of cultural expression."
+      },
+      {
+        type: 'critical',
+        question: "Critically reflect on the role of collective memory in maintaining ethnic identity. Which option best summarizes its impact?",
+        options: [
+          "Collective memory is irrelevant today",
+          "It preserves shared experiences that reinforce solidarity",
+          "It solely hinders progress by clinging to the past",
+          "It is only important during festivals"
+        ],
+        correct: 1,
+        explanation: "Collective memory plays a crucial role in uniting members of an ethnic group through shared experiences."
+      },
+      {
+        type: 'critical',
+        question: "Critically assess the interplay between ethnic identity and national identity in Ethiopia. Which statement best captures the complexity of their relationship?",
+        options: [
+          "They are always in conflict",
+          "They operate in completely separate spheres",
+          "They often overlap and create hybrid identities",
+          "National identity has entirely subsumed ethnic identity"
+        ],
+        correct: 2,
+        explanation: "In Ethiopia, ethnic and national identities frequently interact and overlap, leading to complex, hybrid identities."
+      }
+    ];
+    
+    // Quiz State Variables
+    let currentQuestionIndex = 0;
+    let userAnswers = Array(questions.length).fill(null);
+    let score = 0;
+    let quizStarted = false;
+
+    // DOM Elements
+    const startScreen = document.getElementById('start-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const questionsContainer = document.getElementById('questions-container');
+    const progressBar = document.getElementById('progress-bar');
+    const currentQElement = document.getElementById('current-q');
+
+    // Initialize Quiz
+    function startQuiz() {
+      startScreen.style.display = 'none';
+      quizScreen.style.display = 'block';
+      quizStarted = true;
+      loadQuestion(currentQuestionIndex);
+    }
+
+    // Load Question with inline feedback container
+    function loadQuestion(index) {
+      currentQElement.textContent = index + 1;
+      progressBar.style.width = `${((index + 1) / questions.length) * 100}%`;
+      
+      const question = questions[index];
+      let optionsHTML = question.options.map((option, i) => `
+        <div class="option ${userAnswers[index] === i ? 'selected' : ''}" 
+             onclick="selectOption(${index}, ${i}, this)">
+          ${option}
+        </div>
+      `).join('');
+      
+      questionsContainer.innerHTML = `
+        <div class="question-card active-question">
+          <div class="question-header">
+            <h3>${question.question}</h3>
+            <span class="question-type-tag">${question.type.toUpperCase()}</span>
+          </div>
+          <div class="options-container">
+            ${optionsHTML}
+          </div>
+          <div class="feedback" id="feedback"></div>
+          <div class="navigation">
+            <button onclick="prevQuestion()" ${index === 0 ? 'disabled' : ''}>
+              ← Previous
+            </button>
+            <button onclick="nextQuestion()" id="next-btn" disabled>
+              Next →
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // When an option is selected, provide immediate feedback.
+    function selectOption(qIndex, optionIndex, elem) {
+      // If already answered, do nothing
+      if (userAnswers[qIndex] !== null) return;
+      userAnswers[qIndex] = optionIndex;
+      const question = questions[qIndex];
+      const feedbackDiv = document.getElementById('feedback');
+      const optionElements = document.querySelectorAll('.option');
+      
+      // Disable further selection by removing onclick events
+      optionElements.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+      });
+      
+      if (optionIndex === question.correct) {
+        elem.classList.add('selected', 'correct');
+        feedbackDiv.textContent = "Correct! " + question.explanation;
+        feedbackDiv.classList.add('correct');
+      } else {
+        elem.classList.add('selected', 'incorrect');
+        feedbackDiv.innerHTML = "Incorrect. " + question.explanation + "<br>Correct answer: " + question.options[question.correct];
+        feedbackDiv.classList.add('incorrect');
+      }
+      feedbackDiv.style.display = 'block';
+      // Enable the Next button after feedback is shown.
+      document.getElementById('next-btn').disabled = false;
+    }
+
+    // Navigation functions
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion(currentQuestionIndex);
+      } else {
+        showResults();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion(currentQuestionIndex);
+      }
+    }
+
+    // Show Results
+    function showResults() {
+      score = userAnswers.reduce((total, answer, index) => total + (answer === questions[index].correct ? 1 : 0), 0);
+      document.getElementById('score').textContent = score;
+      const scoreMessage = document.getElementById('score-message');
+      if (score >= 40) {
+        scoreMessage.textContent = "Outstanding! You've mastered the complexities of ethnic identity.";
+      } else if (score >= 30) {
+        scoreMessage.textContent = "Strong performance! You understand key concepts well.";
+      } else if (score >= 20) {
+        scoreMessage.textContent = "Good effort! Review the explanations to deepen your understanding.";
+      } else {
+        scoreMessage.textContent = "Keep practicing! Chapter 5 demands nuanced thinking.";
+      }
+      quizScreen.style.display = 'none';
+      resultsScreen.style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    // Reset Quiz
+    function resetQuiz() {
+      currentQuestionIndex = 0;
+      userAnswers = Array(questions.length).fill(null);
+      score = 0;
+      resultsScreen.style.display = 'none';
+      startScreen.style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    // Keyboard Navigation
+    document.addEventListener('keydown', function(e) {
+      if (!quizStarted) return;
+      if (e.key === 'ArrowRight') {
+        nextQuestion();
+      } else if (e.key === 'ArrowLeft') {
+        prevQuestion();
+      } else if (e.key >= 1 && e.key <= 4) {
+        const optionIndex = parseInt(e.key) - 1;
+        selectOption(currentQuestionIndex, optionIndex, document.querySelectorAll('.option')[optionIndex]);
+      }
+    });
+  </script>
+</body>
+</html>
